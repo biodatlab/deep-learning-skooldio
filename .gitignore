@@ -1,5 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos
+thai-handwritten-number/
+data/
 
 ### macOS ###
 # General
