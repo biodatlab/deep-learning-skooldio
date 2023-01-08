@@ -3,6 +3,8 @@
 thai-handwritten-number/
 deep-learning-skooldio/
 data/
+local/
+trained_models/
 
 ### macOS ###
 # General
