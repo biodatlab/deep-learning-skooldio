@@ -1,6 +1,6 @@
-# Deep learning: Skooldio
+# Introduction to Deep learning: Skooldio
 
-This is a repository for the Skooldio Deep Learning course. It includes
+This is a repository for the Skooldio's Introduction to Deep Learning course. It includes
 the notebooks for the course as follows:
 
 - Introduction to Pytorch
@@ -12,7 +12,17 @@ the notebooks for the course as follows:
 
 You can open each notebook and click the Google Colab badge to open the notebook on Google Colaboratory.
 
+- `01_tensor_operations.ipynb` - Introduction to Pytorch
+- `02_handwritten_recognition.ipynb` - Dense neural network to classify Thai handwritten numbers
+- `03_handwritten_recognition_explore.ipynb` - Experiments with more layers, dropout, and augmentation
+- `student_notebooks` - Notebooks for the students to fill in
+
 ## Datasets
 
-- Handwriting Recognition from [`kittinan/thai-handwriting-number`](https://github.com/kittinan/thai-handwriting-number)
-- Second-hard car price prediction from Rodkaidee.com
+- `thai-handwritten-dataset` is a collection of Thai handwritten numbers
+  for Handwriting Recognition task from [`kittinan/thai-handwriting-number`](https://github.com/kittinan/thai-handwriting-number)
+- `rodkaidee-dataset` is a second-hard car price dataset from Kaidee website in CSV format
+
+## Articles
+
+You can checkout `articles` folder which contains articles about introduction, classification, and handwritten recognition.
