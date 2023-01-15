@@ -159,3 +159,9 @@ class CarPriceTwoLayerModel(nn.Module):
         x = self.linear2(x)
         return x
 ```
+
+## ทดลองทำเองเพิ่มเติม
+
+- ลองเปลี่ยนจาก `Engine` เป็น Continuous column แทน
+- ลด Column ที่ใช้ในการทำนายลงเพื่อดูว่าโมเดลจะทำนายได้ดีแค่ไหน เช่น ตัด `Province` column ออก
+- ทดลองเพิ่ม layer ในโมเดลและอาจจะเพิ่ม Dropout layer ถ้าเกิด Overfitting
