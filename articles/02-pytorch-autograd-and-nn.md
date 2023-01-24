@@ -22,6 +22,9 @@
 x = x - lr * gradient
 ```
 
+- `lr` คือ learning rate ใช้กำหนดความเร็วในการเดินลงเขา หรือค่า scale ในการอัพเดทค่า `x` ในแต่ละรอบ
+- `gradient` คือ ความชันของฟังก์ชันที่เราต้องการหาค่าต่ำสุด ณ​ จุด `x` ที่เราอยู่
+
 โดยปกติการหาความชัน (gradient) นี้จะต้องใช้การคำนวณด้วยมือ เช่น สมการ `f(x) = x**2 - 4x` คำนวณ gradient ได้เท่ากับ
 `f'(x) = 2x - 4` แต่ไม่ต้องห่วงว่าเราจะต้องคำนวณ gradient ด้วยมือระหว่างการสร้าง Neural network เนื่องจากใน Pytorch มี engine
 ที่ชื่อว่า Autograd ที่สามารถคำนวณ gradient ได้อัตโนมัติ
@@ -43,6 +46,25 @@ x.grad
 
 ทั้งนี้ autograd จึงเป็นส่วนสำคัญของการทำ back propagation ใน Neural network เพื่อใช้อัพเดทค่า weight ในแต่ละ layer
 เพื่อให้ loss ลดลง
+
+## ใช้งาน Autograd ร่วมกับ Gradient descent
+
+ถ้าเราใช้ autograd ร่วมกับ gradient descent เพื่อหาค่าต่ำสุดของ function `f(x) = x^2 - 4x` จะได้โค้ดดังนี้
+
+```py
+import torch
+
+alpha = 0.02 # กำหนดพารามิเตอร์สำหรับการอัพเดทค่า x
+x = torch.tensor(10, dtype=torch.float, requires_grad=True)  # กำหนดค่า x ที่เริ่มต้น ใช้  requires_grad=True เพื่อให้ autograd คำนวณ gradient ได้
+f = torch.sum(x * x - 4 * x) # ฟังก์ชันสำหรับกราฟพาราโบลา x ^ 2 + 4 x
+
+# รัน gradient descent algorithm 1000 ครั้ง
+for _ in range(1000):
+    f.backward(retain_graph=True) # คำนวณความชันหรือ gradient โดยใช้ autograd ``.backward()``
+    x.data.sub_(alpha * x.grad) # เทียบเท่ากับ x = x - alpha * gradient โดย x.grad เก็บ gradient ไว้
+    x.grad.data.zero_() # หลังจากเราคำนวณ gradient แล้ว เราต้องตั้งค่ากลับไปที่ 0 อีกครั้งหนึ่งเพื่อคำนวณใหม่
+print(x) # เราจะได้ค่า x ต่ำที่สุดที่ 2
+```
 
 ## Neural network
 
