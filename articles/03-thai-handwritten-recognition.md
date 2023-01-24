@@ -100,6 +100,27 @@ train_loader = DataLoader(train_thaidigit_dataset, batch_size=64, shuffle=True)
 val_loader = DataLoader(val_thaidigit_dataset, batch_size=16, shuffle=False)
 ```
 
+## สุ่มดู batch ข้อมูลจาก Dataloader
+
+ก่อนจะเขียนโค้ดเพื่อเทรนโมเดล ทดลองดึงข้อมูลจาก `DataLoader` เป็น batch มาดูก่อน โดยเราจะใช้ `next` และ `iter`
+เพื่อดึงข้อมูลออกมาดูได้
+
+- `iter` จะทำการสร้าง iterator ของ `DataLoader`
+- `next` จะดึงข้อมูล batch ต่อไปออกมา ดังนี้
+
+```py
+x_batch, y_batch = next(iter(train_loader))  # ดึงข้อมูล batch แรกออกมา
+print(x_batch.shape, y_batch.shape)  # ดูขนาดของข้อมูล ซึ่งจะได้ (batch_size, 1, 28, 28) และ (batch_size,)
+```
+
+จากนั้นทดลอง plot ข้อมูลจาก batch ดูได้ เช่น
+
+```py
+img_batch = x_batch[0, :, :, :]  # เลิอกภาพออกมา 1 ภาพ
+plt.imshow(img_batch)
+plt.title("Digit number = {}".format(y_batch[0]))  # พล็อตโดยใช้ label ของภาพเป็น title
+```
+
 ## สร้าง Model ด้วย `nn.Module`
 
 จากนั้นเราสามารถสร้าง Neural network โดยการประกอบ layers ต่างๆเข้าด้วยกันได้ โดยใช้ `nn.Module` ซึ่งเป็น class
@@ -132,13 +153,19 @@ pred = net(images)
 print(image.shape, pred.shape)
 ```
 
-ถ้า dimension ถูกต้อง สเต็บถัดไปเราจะเริ่มเทรนโมเดลได้
+ถ้า dimension ถูกต้อง สเต็บถัดไปเราจะเริ่มเทรนโมเดลได้เลย
 
 **ข้อสังเกต** จะเห็นว่าเลเยอร์สุดท้ายของโมเดลเราไม่ได้ใส่ softmax เพื่อเปลี่ยนให้ logits เป็น probability เนื่องจากเราจะใช้
 `nn.CrossEntropyLoss` ซึ่งมีการใช้ softmax ในตัวเองแล้วก่อนหา loss จึงไม่ได้ใส่ softmax เพิ่ม
 
 สำหรับวิธีปกติคือการใช้ `nn.NLLLoss` แต่เพิ่ม `softmax` layer เข้าไปในโมเดลตอนท้าย
 แต่การใช้ `nn.CrossEntropyLoss` ช่วยให้เวลาเทรนโมเดลมีความเสถียรกว่าเมื่อใช้ `nn.NLLLoss` และ `softmax` เอง
+
+## การเขียน `nn.Module` class
+
+Template การเขียน Neural network จะเป็นการเขียนแบบ inherit class `nn.Module` ของ Pytorch
+วิธีการ inherit class ของ Python จะเหมือนกับการ inherit class ของภาษาอื่นๆ ทั่วไป คือการใช้ `super` นั่นเอง
+เราจึงเห็นว่า `nn.Module` มี method ที่ชื่อว่า `forward` ซึ่งจะรับ input และคืนค่า output ของโมเดล
 
 ## เทรนโมเดล
 
@@ -150,29 +177,29 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 n_epochs = 50
 
-for epoch in range(n_epochs):
+for epoch in range(n_epochs):  # loop ทั้งหมด n_epochs ครั้ง
     # training
-    net.train()
+    net.train()  # เปลี่ยนโหมดของโมเดลเป็น training mode
     for batch_idx, (images, labels) in enumerate(train_loader):
-        pred = net(images)
-        loss = loss_fn(pred, labels)
+        pred = net(images)  # forward pass เพื่อทำนาย
+        loss = loss_fn(pred, labels)  # คำนวณ loss เพื่อเทียบการทำนายกับ label จริง
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+        optimizer.zero_grad()  # เซ็ต gradient ที่เก็บไว้จากการคำนวณก่อนหน้าให้กลายเป็น 0
+        loss.backward()  # คำนวณ gradient ของ loss ต่อ parameters
+        optimizer.step()  # อัพเดท parameters ตาม gradient ที่คำนวณได้
 ```
 
 ในที่นี้เราเทรนโมเดลจำนวน 50 epochs โดยใช้ SGD optimizer และ cross entropy loss
 ถัดมาเราสามารถเพิ่ม validation loop ได้เพื่อดูว่าโมเดลเราเทรนไปได้ดีแค่ไหน
 
 ```py
-    net.eval()
+    net.eval()  # เปลี่ยนโหมดของโมเดลเป็น evaluation mode
     val_loss, correct = 0, 0
     n_val = len(val_loader.dataset)
     for images, labels in val_loader:
-        pred = net(images)
-        val_loss += loss_fn(pred, labels).item()
-        correct += (pred.argmax(1) == labels).float().sum().item()
+        pred = net(images)  # ทำนายผล
+        val_loss += loss_fn(pred, labels).item()  # คำรนวณ loss รวม
+        correct += (pred.argmax(1) == labels).float().sum().item()  # นับจำนวนที่ทำนายถูก
 ```
 
 โดยเราต้องเปลี่ยนโมเดลเป็น evaluation mode ก่อน โดยใช้ `net.eval()` จากนั้นก็คำนวณหา loss และ accuracy ของ validation set

@@ -58,7 +58,8 @@ y_val = price_scaler.transform(df_val[["Price"]])
 
 ## เซฟ preprocessing ไว้ใช้งานจริง
 
-ใช้ไลบรารี่ `joblib` ในการเซฟ preprocessing ไว้ใช้งานจริง
+ใช้ไลบรารี่ `joblib` ในการเซฟ preprocessing ไว้ใช้งานจริง โดยปกติเราจะใช้ `joblib`
+ในการเซฟโมเดลที่ได้จากชุดข้อมูลเทรน เพื่อนำมาใช้ preprocess ข้อมูลในชุดข้อมูล validation และ test
 
 ```py
 import joblib
