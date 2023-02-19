@@ -136,6 +136,39 @@ train_dataset = ConcatDataset([train_thaidigit_dataset, augmented_train_dataset]
 
 ในการทำจริงๆอาจจะใช้แค่ `augmented_train_dataset` โดยไม่ Concatenate กับ `train_thaidigit_dataset` ก็ได้
 
+## Image augmentation
+
+Image augmentation เป็นวิธีการแบบหนึ่งของ data augmentation ซึ่งมีส่วนสำคัญมากๆในการเพิ่มความหลากหลายของ input ระหว่างเทรนโมเดล
+โดยผลดีของการทำ image augmentation มีหลายอย่างเช่น การลดโอกาสการเกิด overfitting ของโมเดลเนื่องจากโมเดลจะเห็น input ที่มีความหลากหลายขึ้นกว่าเดิม
+นอกจากนั้นคือการทำให้โมเดลมีความยืดหยุ่น (generalized) กับ test data มากขึ้น เนื่องจากเราได้ป้อนข้อมูลที่มีความหลากหลายมากขึ้นระหว่างเทรนโมเดล
+ทั้งนี้เราอาจจะต้องเทรนโมเดลด้วยจำนวน epoch มากขึ้นเนื่องจากโมเดลอาจจะต้องเรียนรู้ชุดข้อมูลที่มีความหลากหลายมากขึ้น
+
+ไลบรารี่ที่สามารถทำ Image augmentation ที่เป็นที่นิยมได้แก่ [`torchvision`](https://pytorch.org/vision/stable/index.html) และ
+[`albumentations`](https://albumentations.ai/) โดยในบทเรียนเราใช้ `torchvision` เพื่อทำการ transform ภาพในชุดข้อมูล train ดังนี้
+
+```py
+train_transform = transforms.Compose([
+    transforms.Resize((28, 28)),
+    transforms.Grayscale(),
+    transforms.RandomAffine(degrees=(-10, 10), translate=(0.0, 0.1), scale=(1, 1)),
+    transforms.ToTensor(),
+])
+```
+
+- `Resize((28, 28))` ทำการ resize ขนาดภาพให้เป็น 28x28 pixel
+- `Grayscale()` เปลี่ยนภาพสีให้เป็นภาพขาวดำ
+- `RandomAffine(degrees=(-10, 10), translate=(0.0, 0.1), scale=(1, 1))` ใส่ 3 input parameters ได้แก่
+  - `degrees` เพื่อสุ่มให้ภาพหมุนไปทางซ้ายหรือขวาได้ตามจำนวนองศาที่กำหนด
+  - `translate` เพื่อสุ่มให้ภาพเลื่อนไปทางซ้ายหรือขวาด้วยสัดส่วนกำหนด โดย 0 คือไม่เลื่อนเลย
+  - `scale` เพื่อสุ่มให้ภาพขยายหรือซูมออกได้ตามสเกลที่กำหนด
+- `ToTensor()` เปลี่ยนสเกลของภาพจาก 0 ถึง 255 (ดำ-ขาว) ให้อยู่ในสเกล 0 ถึง 1 และแปลงภาพให้เป็น tensor เพื่อใส่เข้าไปในโมเดลได้
+
+จากนั้นเราสามารถนำ `Compose` มารวม transform ที่สร้างเข้ามาด้วยกัน นอกจากนั้นยังมี `transforms` อื่นๆที่ใช้ได้เช่น
+
+- `RandomCrop` เพื่อสุ่มการ crop ภาพ
+- `RandomHorizontalFlip` เพื่อกลับภาพตามแนวนอนจากซ้ายไปขาว (เหมาะกับภาพทั่วไป แต่อาจจะไม่เหมาะกับภาพที่อ่านได้ทางเดียวเช่นภาพตัวเลข)
+- `RandomErasing` ลบบางส่วนของภาพด้วยสี่เหลี่ยมสีดำ
+
 ## แล้วยังมีวิธีอื่นๆนอกเหนือจากบทเรียนมั้ย
 
 ยังมีอีกหลายส่วนที่สามารถทำเพิ่มเติมได้จากบทเรียน
