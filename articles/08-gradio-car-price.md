@@ -202,3 +202,5 @@ interface.launch()
 ตัวอย่างของแอพพลิเคชั่นหลังจากรันแล้วบน Google Colab
 
 <img src="images/gradio_carprice.png" width="800"/>
+
+หรือสามารถทดลองใช้งานผ่าน Huggingface space ได้ที่ [https://huggingface.co/spaces/titipata/secondhand_carprice](https://huggingface.co/spaces/titipata/secondhand_carprice) (แอพพลิเคชั่นอาจจะไม่ได้รันตลอดเวลา เนื่องจากเป็นการเปิดทดลองใช้ฟรีบน Huggingface Space)

@@ -3,8 +3,7 @@
 การนำโมเดลมาทดลองทำนายจริงทำให้เราเห็นภาพของโมเดลได้ดีที่สุด ในปัจจุบันเรามีไลบรารี่หลากหลายตัวที่ทำให้เราสามารถสร้างแอพพลิเคชั่น
 เพื่อให้โมเดลทำนายผลจากภาพหรือข้อมูลได้ เช่น [Streamlit]() หรือ [Gradio]()
 
-โดยเราสามารถรันแอพพลิเคชั่น เช่น Gradio ผ่านออนไลน์แพลตฟอร์ม เช่น [Huggingface Spaces](https://huggingface.co/spaces)
-หรือรันผ่าน Google Colaboratory ก็ได้
+โดยเราสามารถรันแอพพลิเคชั่น เช่น Gradio ผ่านออนไลน์แพลตฟอร์ม เช่น [Huggingface Spaces](https://huggingface.co/spaces) หรือรันผ่าน Google Colaboratory ก็ได้
 
 สำหรับการรัน Gradio บน Google Colab เราต้องมีโมเดลที่เทรนแล้วเรียบร้อย และชุดโค้ดสำหรับการรัน Gradio ซึ่งประกอบด้วยการ install ไลบรารี่ที่จำเป็น
 ได้แก่ Gradio และ `torchvision` (สำหรับการ transforms ข้อมูล)
@@ -122,3 +121,46 @@ gr.Interface(
 ตัวอย่างของแอพพลิเคชั่นหลังจากรันแล้วบน Google Colab
 
 <img src="images/gradio_handwritten.png" width="800"/>
+
+
+## การรัน Gradio ด้วย Huggingface space
+
+การรัน Gradio ด้วย Huggingface Space จะใช้การรันคล้ายกับการรันบน Google Colab แต่เป็นการอัพโหลดไฟล์และ set up มากกว่า โดยจะมีขั้นตอนคร่าวๆ ดังนี้
+
+- สมัคร account กับ Huggingface
+- ทำการสร้าง Space ใหม่โดยการกด "Create New Space" ตั้งชื่อใน `Space name` และเลือก Space SDK เป็น Gradio สำรหับ Hardware ถ้าทดลองฟรีให้ใช้ `CPU basic`
+
+<img src="images/01_create_space.png" width="400"/>
+
+- เพิ่มไฟล์ที่เกี่ยวข้องไปยัง Space ที่สร้างขึ้น ได้แก่ `app.py` สำหรับ Gradio, `requirements.txt` สำหรับไลบรารี่ที่เกี่ยวข้อง และโมเดล (เช่น `thai_digit_net.pth`)
+
+<img src="images/02_add_files.png" width="400"/>
+
+<img src="images/03_upload_files.png" width="600"/>
+
+หลังจากนั้นตรวจสอบ `README.md` ให้เรียบร้อยเพื่อตรวจสอบเวอร์ชั่นของ Gradio โดย `README.md` จะมีโค้ดตามด้านล่าง
+
+```py
+title: Thai Handwritten Digit Classification
+emoji: ✏️
+colorFrom: indigo
+colorTo: indigo
+sdk: gradio
+sdk_version: 3.35.0
+app_file: app.py
+pinned: false
+license: mit
+```
+
+`sdk_version` สำคัญมาก ๆ เนื่องจาก Gradio จะถูกปรับ default เป็นเวอร์ชั่นล่าสุด  แต่อาจจะไม่ตรงกับเวอร์ชั่นที่เราพัฒนามาก่อนหน้า ในที่นี้เราจะปรับให้เป็นเวอร์ชั่น 3.35.0 เพราะมีฟังก์ชัน Sketchpad ที่เราต้องการ
+
+สำหรับ `requirements.txt` จะประกอบด้วย `torch` และ `torchvision` ดังนี้
+
+```
+torch
+torchvision
+```
+
+หลังจากที่อัพโหลดไฟล์ต่างๆ และตรวจสอบ `README.md` และ `requirements.txt` ก็เพียงรอให้แอพพลิเคชั่นสร้างขึ้นและทดลองผ่านเว็บบราวเซอร์ได้เลย
+
+ผู้ที่สนใจสามารถทดลองใช้งานผ่าน Huggingface space ได้ที่ [https://huggingface.co/spaces/titipata/thai-digit-classification](https://huggingface.co/spaces/titipata/thai-digit-classification) (แอพพลิเคชั่นอาจจะไม่ได้รันตลอดเวลา เนื่องจากเป็นการเปิดทดลองใช้ฟรีบน Huggingface Space)
