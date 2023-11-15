@@ -114,3 +114,16 @@ F.relu(x)
 x = torch.tensor([0.])
 torch.sigmoid(x)
 ```
+
+ปัจจุบัน `relu` มักเป็นที่นิยมในการใช้สำหรับ non-linear layer ของ Neural Network
+
+## การใส่ non-linear layer ใน Neural Network
+
+ลองนึกภาพในกรณีที่เราไม่ใส่ non-linear layer หรือ activation function ระหว่างเลเยอร์ของ Neural Network ก่อน
+
+กรณีที่เรามี 2 เลเยอร์ เมื่อใส่ input `x` เข้าไปในโมเดล เราจะได้ผลลัพธ์หลังจากใส่ input เป็น
+`pred = fc2(fc1(x))` ซึ่งความสัมพันธ์ระหว่าง input กับ output แบบไม่มี non-linear layer อาจจะเขียนเป็น `pred = fc3(x)`
+ได้เพราะว่า `fc2` กับ `fc1` สามารถนำมาคูณกันได้ตรงๆ ดังนั้นการ optimize โมเดลแบบไม่มี non-linear layer จึงอาจจะไม่สามารถ
+หาความสัมพันธ์ของข้อมูลกรณีที่มีความซับซ้อนมากได้
+
+ดังนั้นการใส่ non-linear layer ทำให้ Neural Network สามารถเรียนรู้แพทเทิร์นระหว่าง input กับ output แบบ non-linear ได้นั่นเอง
