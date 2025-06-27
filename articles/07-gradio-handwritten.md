@@ -9,7 +9,7 @@
 ได้แก่ Gradio และ `torchvision` (สำหรับการ transforms ข้อมูล)
 
 ``` sh
-!pip install gradio==3.35.0
+!pip install gradio==5.33.1
 !pip install torchvision
 ```
 
@@ -86,36 +86,63 @@ model.eval()
 ``` py
 def predict(img):
     """
-    Predict function takes image and return top 5 predictions
+    Predict function takes image editor data and returns top 5 predictions
     as a dictionary:
-
         {label: confidence, label: confidence, ...}
     """
     if img is None:
-        return None
-    img = transform(img)  # do not need to use 1 - transform(img) because gradio already do it
+        return {}
+    
+    # Handle if Sketchpad returns a dictionary
+    if isinstance(img, dict):
+        # Try common keys that might contain the image
+        img = img.get('image') or img.get('composite') or img.get('background')
+        if img is None:
+            return {}
+
+    img = 1 - transform(img)  # do not need to use 1 - transform(img) because gradio already do it
     probs = model(img).softmax(dim=1).ravel()
     probs, indices = torch.topk(probs, 5)  # select top 5
-    probs, indices = probs.tolist(), indices.tolist()  # transform to list
-    confidences = {LABELS[i]: v for i, v in zip(indices, probs)}
+    confidences = {LABELS[i]: float(prob) for i, prob in zip(indices.tolist(), probs.tolist())}
     return confidences
 ```
 
 ประกอบร่างทั้งหมดโดยใช้ `gr.Interface` ที่รับ
 - ฟังก์ชั่น `predict` ที่รับภาพประเภท PIL และเปลี่ยนให้เป็น dictionary
 - `inputs` รับ `gr.Sketchpad` ที่ทำให้ผู้ใช้งานสามารถทดลองวาดตัวเลขบน Sketch pad ได้
+- ใน `Sketchpad` มีการใส่ `brush=gr.Brush(default_size=8, colors=["#000000"])` เพื่อให้การเขียนเป็นสีดำและขนาดใกล้เคียงกับการเขียนใน training set
 - `outputs` รับ `gr.Label` ที่เปลี่ยน dictionary ที่ได้ให้เป็นตารางของ label และความน่าจะเป็น (probability)
 - `title` เป็นชื่อของแอพพลิเคชั่นที่จะแสดงด้านบนของแอพพลิเคชั่น
-- ทั้งหมดต่อด้วย `.launch(enable_queue=True)` เพื่อสร้าง application ทดลองใช้งานบน Google Colab
+- ทั้งหมดต่อด้วย `interface.launch()` เพื่อสร้าง application ทดลองใช้งานบน Google Colab
 
 ``` py
-gr.Interface(
-    fn=predict,
-    inputs=gr.Sketchpad(label="Draw Here", brush_radius=5, type="pil", shape=(120, 120)),
-    outputs=gr.Label(label="Guess"),
-    title="Thai Digit Handwritten Classification",
-    live=True
-).launch(enable_queue=True)
+with gr.Blocks(title="Thai Digit Handwritten Classification") as interface:
+    gr.Markdown("# Thai Digit Handwritten Classification")
+    gr.Markdown("Draw a Thai digit (๐-๙) in the box below:")
+
+    with gr.Row():
+        with gr.Column():
+            input_component = gr.Sketchpad(
+                label="Draw Here",
+                height=300,
+                width=300,
+                brush=gr.Brush(default_size=8, colors=["#000000"]),
+                eraser=False,
+                type="pil", 
+                canvas_size=(300, 300),
+            )
+        
+        with gr.Column():
+            output_component = gr.Label(label="Prediction", num_top_classes=5)
+    
+    # Set up the prediction
+    input_component.change(
+        fn=predict,
+        inputs=input_component,
+        outputs=output_component
+    )
+
+interface.launch()
 ```
 
 ตัวอย่างของแอพพลิเคชั่นหลังจากรันแล้วบน Google Colab
@@ -146,7 +173,7 @@ emoji: ✏️
 colorFrom: indigo
 colorTo: indigo
 sdk: gradio
-sdk_version: 3.35.0
+sdk_version: 5.33.1
 app_file: app.py
 pinned: false
 license: mit
